@@ -111,11 +111,17 @@ instance {-# OVERLAPPABLE #-}
   ) => GHasParam p (Rec si s) (Rec ti t) a b where
   gparam f (Rec (K1 x)) = Rec . K1 <$> gparamRec @(LookupParam si p) f x
 
-class GHasParamRec (param :: Maybe Nat) s t a b | param t a b -> s, param s a b -> t where
+class GHasParamRec (params :: Maybe [Nat]) s t a b | params t a b -> s, params s a b -> t where
   gparamRec :: forall g.  Applicative g => (a -> g b) -> s -> g t
 
 instance GHasParamRec 'Nothing a a c d where
   gparamRec _ = pure
 
-instance (HasParam n s t a b) => GHasParamRec ('Just n) s t a b where
+instance (HasParam n s t a b) => GHasParamRec ('Just '[n]) s t a b where
   gparamRec = param @n
+
+instance (GHasParamRec ('Just ns) s t e f , HasParam m e f c d , HasParam n c d a b) => GHasParamRec ('Just (n ': m ': ns)) s t a b  where
+  gparamRec = gparamRec @(Just ns) . param @m . param @n
+
+-- instance (HasParam m s t c d , HasParam n c d a b) => GHasParamRec ('Just (n ': m ': '[])) s t a b  where
+--   gparamRec = param @m . param @n

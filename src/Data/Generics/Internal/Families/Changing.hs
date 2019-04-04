@@ -107,11 +107,24 @@ type family ReplaceArgs (t :: k) (subs :: [Sub]) :: k where
   ReplaceArgs t '[] = t
   ReplaceArgs t ('Sub n arg ': ss) = ReplaceArgs (ReplaceArg t n arg) ss
 
-type family LookupParam (a :: k) (p :: Nat) :: Maybe Nat where
+type family LookupParam (a :: k) (p :: Nat) :: Maybe [Nat] where
   LookupParam (param (n :: Nat)) m = 'Nothing
-  LookupParam (a (_ (m :: Nat))) n = IfEq m n ('Just 0) (MaybeAdd (LookupParam a n) 1)
-  LookupParam (a _) n = MaybeAdd (LookupParam a n) 1
+  LookupParam (a (_ (m :: Nat))) n = IfEq m n ('Just '[0]) (IncHead (LookupParam a n))
+  LookupParam (a b) n = Alt (MaybeCons 0 (LookupParam b n)) (IncHead (LookupParam a n))
   LookupParam a _ = 'Nothing
+
+type family Alt (a :: Maybe k) (b :: Maybe k) :: Maybe k where
+  Alt 'Nothing x = x
+  Alt x _ = x
+
+type family MaybeCons (x :: k) (a :: Maybe [k]) :: Maybe [k] where
+  MaybeCons x 'Nothing = 'Nothing
+  MaybeCons x ('Just xs) = ('Just (x ': xs))
+
+type family IncHead (a :: Maybe [k]) :: Maybe [k] where
+  IncHead 'Nothing = 'Nothing
+  IncHead ('Just '[]) = 'Just '[]
+  IncHead ('Just (x ': xs)) = 'Just ((x + 1) ': xs)
 
 type family MaybeAdd (a :: Maybe Nat) (b :: Nat) :: Maybe Nat where
   MaybeAdd 'Nothing _  = 'Nothing
