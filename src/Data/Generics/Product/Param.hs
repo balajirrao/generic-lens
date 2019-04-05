@@ -120,8 +120,9 @@ instance GHasParamRec 'Nothing a a c d where
 instance (HasParam n s t a b) => GHasParamRec ('Just '[n]) s t a b where
   gparamRec = param @n
 
-instance (GHasParamRec ('Just ns) s t e f , HasParam m e f c d , HasParam n c d a b) => GHasParamRec ('Just (n ': m ': ns)) s t a b  where
-  gparamRec = gparamRec @(Just ns) . param @m . param @n
+--  Can't get this to work
+-- instance (GHasParamRec ('Just ns) s t e f , HasParam m e f c d , HasParam n c d a b) => GHasParamRec ('Just (n ': m ': ns)) s t a b  where
+--   gparamRec = gparamRec @(Just ns) . param @m . param @n
 
--- instance (HasParam m s t c d , HasParam n c d a b) => GHasParamRec ('Just (n ': m ': '[])) s t a b  where
---   gparamRec = param @m . param @n
+instance (HasParam m s t c d , HasParam n c d a b) => GHasParamRec ('Just (n ': m ': '[])) s t a b  where
+  gparamRec = param @m . param @n
