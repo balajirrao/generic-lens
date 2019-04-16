@@ -123,6 +123,19 @@ instance (HasParam n s t a b) => GHasParamRec '[n] s t a b where
 instance (HasParam m s t c d , HasParam n c d a b) => GHasParamRec (n ': m ': '[]) s t a b  where
   gparamRec = param @m . param @n
 
--- Can't get this to work
+-- Can't get this to work for arbitrary nesting of params
 -- instance (GHasParamRec ns s t e f , HasParam n c d a b) => GHasParamRec (n ': m ': ns) s t a b  where
 --   gparamRec = gparamRec @ns . param @n
+--
+--     • Illegal instance declaration for
+--         ‘GHasParamRec (n : m : ns) s t a b’
+--         The liberal coverage condition fails in class ‘GHasParamRec’
+--           for functional dependency: ‘params t a b -> s’
+--         Reason: lhs types ‘n : m : ns’, ‘t’, ‘a’, ‘b’
+--           do not jointly determine rhs type ‘s’
+--         Un-determined variable: s
+--     • In the instance declaration for
+--         ‘GHasParamRec (n : m : ns) s t a b’
+--     |
+-- 127 | instance (GHasParamRec ns s t e f , HasParam n c d a b) => GHasParamRec (n ': m ': ns) s t a b  where
+--     |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
